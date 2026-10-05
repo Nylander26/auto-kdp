@@ -66,6 +66,9 @@ const schema = z.object({
       short_book_cost_usd: z.number().min(0).default(2.3),
       fixed_cost_usd: z.number().min(0).default(1.0),
       per_page_cost_usd: z.number().min(0).default(0.012),
+      // Large trims (> 6.12" wide or > 9" tall, e.g. 8.5x11) are billed higher.
+      large_short_book_cost_usd: z.number().min(0).default(2.84),
+      large_per_page_cost_usd: z.number().min(0).default(0.017),
       target_royalty_usd: z.number().min(0).default(2.5),
       min_price_usd: z.number().min(0).default(7.99),
     })

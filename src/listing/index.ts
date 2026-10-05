@@ -7,7 +7,7 @@ import type { BookMeta } from "../lib/types.js";
 import { suggestPrice } from "./pricing.js";
 
 export function buildListing(book: BookMeta, pageCount: number, illustrations: number, pricing: Config["pricing"]) {
-  const price = suggestPrice(pageCount, pricing);
+  const price = suggestPrice(pageCount, book.trim, pricing);
   return {
     details: {
       language: "English",

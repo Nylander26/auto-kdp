@@ -40,6 +40,8 @@ pricing:                        # verificar contra la tabla actual de KDP antes 
   short_book_cost_usd: 2.30
   fixed_cost_usd: 1.00
   per_page_cost_usd: 0.012
+  large_short_book_cost_usd: 2.84  # trim > 6.12" ancho o > 9" alto (8.5x11): verificado en KDP 2026-10-05
+  large_per_page_cost_usd: 0.017
   target_royalty_usd: 2.50
   min_price_usd: 7.99
 
