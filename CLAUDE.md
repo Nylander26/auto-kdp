@@ -15,7 +15,7 @@ Spun off from `Nylander26/agentic-etsy-printify` (Etsy/Printify POD). Shared mod
 ## Commands
 
 ```bash
-pnpm plan --niche "cozy cats" [--audience kids|adults] [--pages 30] [--force]   # → output/books/{id}/book.json
+pnpm plan --niche "cozy cats" [--audience kids|adults|bold-easy] [--pages 30] [--force]   # → output/books/{id}/book.json
 pnpm generate [--book <id>] [--limit N] [--regen-cover]   # resumable: only slots with no attempt yet
 pnpm validate [--book <id>]                               # AI validator + auto-regenerate loop
 pnpm review [--book <id>]                                 # manual A/R/G/S for borderline pages

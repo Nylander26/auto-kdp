@@ -19,7 +19,7 @@ const schema = z.object({
       // Coloring books almost never need bleed: art stays inside the margins on a white
       // page, which is also what KDP's reviewers expect. Flip only for full-bleed art.
       bleed: z.boolean().default(false),
-      audience: z.enum(["kids", "adults"]).default("adults"),
+      audience: z.enum(["kids", "adults", "bold-easy"]).default("adults"),
       pages: z.number().int().min(10).max(100).default(30),
       // One illustration per sheet with a blank back — markers bleed through KDP paper.
       single_sided: z.boolean().default(true),

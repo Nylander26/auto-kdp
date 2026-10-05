@@ -6,9 +6,21 @@
 import { getConfig } from "../lib/config.js";
 import type { Audience, ValidationResult } from "../lib/types.js";
 
+const WHO: Record<Audience, string> = {
+  kids: "children aged 4-8",
+  adults: "adults who color to relax",
+  "bold-easy": "adults and seniors who want bold and easy pages",
+};
+
+const FIT: Record<Audience, string> = {
+  kids: "simple and bold, nothing scary",
+  adults: "detailed enough to be engaging, calming",
+  "bold-easy": "thick lines and large simple shapes with few tiny details, yet grown-up and charming rather than babyish",
+};
+
 export function buildValidatorPrompt(subject: string, styleGuide: string, audience: Audience): string {
   const v = getConfig().validator;
-  const who = audience === "kids" ? "children aged 4-8" : "adults who color to relax";
+  const who = WHO[audience];
   return `
 You are the quality controller of a coloring-book publisher on Amazon KDP. You inspect one interior page (already converted to pure black and white) for a book aimed at ${who}.
 
@@ -19,7 +31,7 @@ Score 1-10:
 1. lineQuality — crisp, continuous, consistent black outlines; no broken/sketchy lines, no blobs, no noise specks.
 2. colorability — shapes are CLOSED regions with enough room to color for ${who}; no large solid black areas, no hatching/stippling that leaves nothing to color, no tiny unusable fragments.
 3. subjectFidelity — clearly depicts the planned subject; anatomy is correct (extra/missing limbs, fingers, eyes = blocker); no melted or merged objects.
-4. audienceFit — complexity matches ${who} (${audience === "kids" ? "simple and bold, nothing scary" : "detailed enough to be engaging, calming"}).
+4. audienceFit — complexity matches ${who} (${FIT[audience]}).
 5. overall — weighted judgement; cap at 5 if any score is <= 3.
 
 HARD BLOCKERS (verdict "rejected", overall <= 4): any text/letters/watermark; a page border/frame; anatomy errors; the artwork cut off at an edge; mostly empty page.

@@ -10,15 +10,16 @@ export const KEYWORD_SLOTS = 7;
 export const MAX_KEYWORD_LEN = 50;
 
 export function buildPlanPrompt(niche: string, audience: Audience, pages: number, country: string): string {
-  const who =
-    audience === "kids"
-      ? "children aged 4-8 (simple, friendly, big shapes, nothing scary)"
-      : "adults who color to relax (detailed, intricate, calming)";
+  const who: Record<Audience, string> = {
+    kids: "children aged 4-8 (simple, friendly, big shapes, nothing scary)",
+    adults: "adults who color to relax (detailed, intricate, calming)",
+    "bold-easy": 'adults and seniors who want "bold and easy" pages (thick lines, big simple shapes, cozy, quick to finish, not childish)',
+  };
   return `
 You are an expert Amazon KDP publisher of best-selling coloring books for the ${country} market.
 
 Plan a coloring book for the niche: "${niche}".
-Audience: ${who}.
+Audience: ${who[audience]}.
 Number of illustrations: ${pages}.
 
 Rules:

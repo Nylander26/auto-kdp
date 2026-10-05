@@ -2,7 +2,7 @@
  * Plans a coloring book from a niche: title, subtitle, KDP metadata, shared art
  * direction and one subject per page. Writes output/books/{id}/book.json.
  *
- * Uso: pnpm plan --niche "cozy cats" [--audience kids|adults] [--pages 30] [--force]
+ * Uso: pnpm plan --niche "cozy cats" [--audience kids|adults|bold-easy] [--pages 30] [--force]
  */
 import { generateJSON } from "../lib/gemini.js";
 import { getConfig } from "../lib/config.js";
@@ -10,7 +10,7 @@ import { getFlag, hasFlag, isMain, slugify } from "../lib/args.js";
 import { writeBook } from "../lib/book-store.js";
 import { booksForNiche, recordBook } from "../lib/db.js";
 import { buildPlanPrompt, normalizePlan } from "./plan.js";
-import type { Audience, BookMeta } from "../lib/types.js";
+import { parseAudience, type Audience, type BookMeta } from "../lib/types.js";
 
 export async function planBook(niche: string, opts: { audience?: Audience; pages?: number; force?: boolean } = {}): Promise<BookMeta> {
   const cfg = getConfig();
@@ -59,11 +59,10 @@ export function printPlan(book: BookMeta): void {
 async function main() {
   const niche = getFlag("niche");
   if (!niche || niche === "true") {
-    console.error('Uso: pnpm plan --niche "cozy cats" [--audience kids|adults] [--pages 30] [--force]');
+    console.error('Uso: pnpm plan --niche "cozy cats" [--audience kids|adults|bold-easy] [--pages 30] [--force]');
     process.exit(1);
   }
-  const audience = getFlag("audience") as Audience | undefined;
-  if (audience && audience !== "kids" && audience !== "adults") throw new Error("--audience debe ser kids o adults");
+  const audience = parseAudience(getFlag("audience"));
   const pagesFlag = getFlag("pages");
   const book = await planBook(niche, {
     ...(audience ? { audience } : {}),

@@ -3,6 +3,13 @@ import type { Audience } from "../lib/types.js";
 const AUDIENCE_STYLE: Record<Audience, string> = {
   kids: "thick bold outlines, large simple shapes with plenty of room to color, cute friendly characters, minimal background",
   adults: "intricate detailed line work with medium-weight outlines, rich patterns and textures drawn as lines, full composition with a detailed background",
+  "bold-easy": "thick bold outlines, large simple shapes with plenty of room to color, cozy charming grown-up subjects (not babyish), few small details, simple uncluttered background",
+};
+
+const COVER_AUDIENCE: Record<Audience, string> = {
+  kids: "children's",
+  adults: "adult",
+  "bold-easy": "bold and easy adult",
 };
 
 /** Prompt for one interior page. The negatives matter more than the subject. */
@@ -24,7 +31,7 @@ Anatomy must be correct (count fingers, legs, eyes).${hints}
 /** Full-color cover illustration. Text is overlaid later in the PDF, never drawn. */
 export function buildCoverPrompt(coverConcept: string, styleGuide: string, audience: Audience): string {
   return `
-Full-color illustration for the front cover of a ${audience === "kids" ? "children's" : "adult"} coloring book, portrait orientation.
+Full-color illustration for the front cover of a ${COVER_AUDIENCE[audience]} coloring book, portrait orientation.
 Concept: ${coverConcept}.
 Style: same characters and look as the interior (${styleGuide}), but fully colored with a vibrant, appealing palette, as if a colorist finished one of the pages.
 Keep the top 25% of the image calm and uncluttered (a title will be placed there).

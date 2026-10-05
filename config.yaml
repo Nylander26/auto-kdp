@@ -6,11 +6,11 @@ market:
   language: en
 
 book:
-  author: "Your Pen Name"       # seudónimo que va en portada, portadilla y KDP
+  author: "Hazel Pine"          # seudónimo que va en portada, portadilla y KDP
   trim: "8.5x11"                # 8.5x11 | 8x10 | 8.25x8.25 | 6x9
   paper: white                  # white | cream | premium-color
   bleed: false                  # libros de colorear: arte dentro de márgenes, sin sangrado
-  audience: adults              # kids | adults (override con --audience)
+  audience: bold-easy           # kids | adults | bold-easy (override con --audience)
   pages: 30                     # ilustraciones por libro (override con --pages)
   single_sided: true            # reverso en blanco tras cada ilustración
   belongs_to_page: true         # página "This Book Belongs To" (solo kids)

@@ -1,6 +1,14 @@
 import type { PaperType, TrimSize } from "./kdp-specs.js";
 
-export type Audience = "kids" | "adults";
+// "bold-easy" = adults/seniors who want big simple shapes and thick lines (relaxing, low-vision friendly).
+export const AUDIENCES = ["kids", "adults", "bold-easy"] as const;
+export type Audience = (typeof AUDIENCES)[number];
+
+export function parseAudience(v: string | undefined): Audience | undefined {
+  if (v === undefined) return undefined;
+  if (!(AUDIENCES as readonly string[]).includes(v)) throw new Error(`--audience debe ser ${AUDIENCES.join(" | ")}`);
+  return v as Audience;
+}
 
 export type PageStatus =
   | "pending-validation" // generated, awaiting the AI validator
@@ -40,7 +48,7 @@ export interface ValidationScores {
   lineQuality: number;     // clean, closed, consistent black outlines
   colorability: number;    // regions big enough to color, no solid fills / gray
   subjectFidelity: number; // depicts the planned subject, no anatomy glitches
-  audienceFit: number;     // complexity matches kids vs adults
+  audienceFit: number;     // complexity matches the audience
   overall: number;
 }
 

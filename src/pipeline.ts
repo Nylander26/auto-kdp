@@ -2,7 +2,7 @@
  * Full run: plan → (approve plan) → generate → validate → notify → assemble.
  * Stops before assembling when pages wait for manual review.
  *
- * Uso: pnpm pipeline --niche "cozy cats" [--audience kids|adults] [--pages 30] [--force] [--yes]
+ * Uso: pnpm pipeline --niche "cozy cats" [--audience kids|adults|bold-easy] [--pages 30] [--force] [--yes]
  */
 import { getConfig } from "./lib/config.js";
 import { getFlag, hasFlag } from "./lib/args.js";
@@ -13,16 +13,16 @@ import { planBook, printPlan } from "./planner/index.js";
 import { generateBook } from "./generator/index.js";
 import { validateBook } from "./validator/index.js";
 import { assembleBook } from "./assembler/index.js";
-import type { Audience } from "./lib/types.js";
+import { parseAudience } from "./lib/types.js";
 
 async function main() {
   const cfg = getConfig();
   const niche = getFlag("niche");
   if (!niche || niche === "true") {
-    console.error('Uso: pnpm pipeline --niche "cozy cats" [--audience kids|adults] [--pages 30] [--yes]');
+    console.error('Uso: pnpm pipeline --niche "cozy cats" [--audience kids|adults|bold-easy] [--pages 30] [--yes]');
     process.exit(1);
   }
-  const audience = getFlag("audience") as Audience | undefined;
+  const audience = parseAudience(getFlag("audience"));
   const pagesFlag = getFlag("pages");
 
   console.log("[1/4] Plan");
