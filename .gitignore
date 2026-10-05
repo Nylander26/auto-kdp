@@ -13,3 +13,4 @@ output/
 
 # Claude
 .claude/settings.local.json
+.claude/notes/
