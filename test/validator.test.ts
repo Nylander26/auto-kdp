@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { inkCheck, normalizeValidation } from "../src/validator/criteria.js";
+import sharp from "sharp";
+import { frameCheck, inkCheck, normalizeValidation } from "../src/validator/criteria.js";
+import { frameCoverage } from "../src/postprocess/line-art.js";
 import { getConfig } from "../src/lib/config.js";
 
 const v = getConfig().validator;
@@ -31,5 +33,22 @@ describe("inkCheck", () => {
     expect(inkCheck(0.1)).toBeNull();
     expect(inkCheck(0.001)?.verdict).toBe("rejected");
     expect(inkCheck(0.6)?.reasons.blockers[0]).toMatch(/solid black/);
+  });
+});
+
+const svgPage = (body: string) =>
+  sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><rect width="400" height="500" fill="#fff"/>${body}</svg>`)).png().toBuffer();
+const tree = `<path d="M200 80 L300 380 L100 380 Z" fill="none" stroke="#000" stroke-width="8"/><line x1="40" y1="420" x2="360" y2="420" stroke="#000" stroke-width="6"/>`;
+
+describe("frame pre-check", () => {
+  it("rejects artwork boxed in by a page border without an API call", async () => {
+    const framed = await svgPage(`<rect x="20" y="20" width="360" height="460" rx="12" fill="none" stroke="#000" stroke-width="8"/>${tree}`);
+    const r = frameCheck(await frameCoverage(framed));
+    expect(r?.verdict).toBe("rejected");
+    expect(r?.reasons.blockers[0]).toMatch(/border/);
+  });
+
+  it("passes open artwork, even with a ground line spanning the width", async () => {
+    expect(frameCheck(await frameCoverage(await svgPage(tree)))).toBeNull();
   });
 });

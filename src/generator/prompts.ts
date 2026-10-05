@@ -19,7 +19,7 @@ export function buildPagePrompt(subject: string, styleGuide: string, audience: A
       ? `\nFix these problems from the previous attempt:\n${improvementHints.map((h) => `- ${h}`).join("\n")}`
       : "";
   return `
-Black-and-white coloring book page. Portrait orientation, the illustration fills the frame.
+Black-and-white coloring book page. Portrait orientation, the illustration fills most of the page and ends openly on white, with every element whole — nothing cut off at the edges.
 Subject: ${subject}.
 Art direction (shared by every page of this book): ${styleGuide}.
 Line style: ${AUDIENCE_STYLE[audience]}.

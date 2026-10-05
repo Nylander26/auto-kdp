@@ -16,7 +16,8 @@ import { getFlag, isMain } from "../lib/args.js";
 import { latestBookId, listPages, readBook, writePage } from "../lib/book-store.js";
 import { budgetReport, BudgetExceededError } from "../lib/budget.js";
 import { generatePage } from "../generator/page.js";
-import { buildValidatorPrompt, inkCheck, normalizeValidation } from "./criteria.js";
+import { frameCoverage } from "../postprocess/line-art.js";
+import { buildValidatorPrompt, frameCheck, inkCheck, normalizeValidation } from "./criteria.js";
 import type { BookMeta, PageMeta, ValidationResult } from "../lib/types.js";
 
 export interface ValidationSummary {
@@ -27,10 +28,11 @@ export interface ValidationSummary {
 }
 
 export async function validatePage(book: BookMeta, page: PageMeta): Promise<ValidationResult> {
-  const pre = inkCheck(page.inkCoverage ?? 0);
+  const print = readFileSync(page.files.print);
+  const pre = inkCheck(page.inkCoverage ?? 0) ?? frameCheck(await frameCoverage(print));
   if (pre) return pre;
   // The binarized print page is what gets printed; 1200px is plenty for the model.
-  const jpeg = await sharp(readFileSync(page.files.print)).resize(1200, 1200, { fit: "inside" }).jpeg({ quality: 85 }).toBuffer();
+  const jpeg = await sharp(print).resize(1200, 1200, { fit: "inside" }).jpeg({ quality: 85 }).toBuffer();
   const raw = await analyzeImage<Parameters<typeof normalizeValidation>[0]>(
     jpeg.toString("base64"),
     "image/jpeg",

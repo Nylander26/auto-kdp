@@ -91,19 +91,32 @@ export function inkCheck(coverage: number): ValidationResult | null {
   let hint = "";
   if (coverage < cfg.min_ink_coverage) {
     blocker = `page nearly empty (${(coverage * 100).toFixed(1)}% ink)`;
-    hint = "fill the whole frame with the illustration and a detailed background";
+    hint = "fill most of the page with the illustration and a simple background";
   } else if (coverage > cfg.max_ink_coverage) {
     blocker = `too much solid black (${(coverage * 100).toFixed(1)}% ink)`;
     hint = "use outlines only — no solid black fills, no dark backgrounds, no shading";
   }
-  if (!blocker) return null;
+  return blocker ? deterministicReject(blocker, hint, "ink-coverage") : null;
+}
+
+/** Deterministic pre-check: a border drawn around the whole page. null = passes. */
+export function frameCheck(coverage: number): ValidationResult | null {
+  if (coverage < getConfig().validator.max_frame_coverage) return null;
+  return deterministicReject(
+    "page border/frame drawn around the whole illustration",
+    "no border, no frame, no box around the page — let the artwork end openly on white",
+    "frame-check"
+  );
+}
+
+function deterministicReject(blocker: string, hint: string, model: string): ValidationResult {
   return {
     verdict: "rejected",
     scores: { lineQuality: 1, colorability: 1, subjectFidelity: 1, audienceFit: 1, overall: 1 },
     reasons: { strengths: [], concerns: [], blockers: [blocker] },
     suggestedImprovements: [hint],
     evaluatedAt: new Date().toISOString(),
-    model: "ink-coverage",
+    model,
   };
 }
 

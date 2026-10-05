@@ -25,6 +25,7 @@ validator:
   auto_regenerate: true         # rechazadas se regeneran solas hasta el tope
   min_ink_coverage: 0.02        # pre-check sin API: página casi vacía
   max_ink_coverage: 0.35        # pre-check sin API: demasiado negro sólido
+  max_frame_coverage: 0.9       # pre-check sin API: marco de página (4 lados cerrados)
 
 gemini:
   model_text: "gemini-2.5-flash"

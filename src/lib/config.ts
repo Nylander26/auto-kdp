@@ -41,6 +41,8 @@ const schema = z.object({
       // pixels. Below min = nearly empty page; above max = heavy black fills nobody can color.
       min_ink_coverage: z.number().min(0).max(1).default(0.02),
       max_ink_coverage: z.number().min(0).max(1).default(0.35),
+      // Same pre-check for a drawn page border: weakest-side coverage of the ink bbox.
+      max_frame_coverage: z.number().min(0).max(1).default(0.9),
     })
     .default({}),
   gemini: z

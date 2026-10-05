@@ -47,3 +47,46 @@ export async function inkCoverage(image: Buffer): Promise<number> {
   for (let i = 0; i < data.length; i += info.channels) if ((data[i] ?? 255) < 128) black++;
   return black / (info.width * info.height);
 }
+
+/**
+ * How completely the artwork is boxed in by a page frame: for each side of the ink
+ * bounding box, the fraction of that side with ink within a thin band along it; returns
+ * the weakest side. A drawn border scores ~1.0; open artwork rarely passes 0.3.
+ */
+export async function frameCoverage(image: Buffer): Promise<number> {
+  const { data, info } = await sharp(image).grayscale().raw().toBuffer({ resolveWithObject: true });
+  const W = info.width;
+  const H = info.height;
+  const ink = (x: number, y: number) => (data[(y * W + x) * info.channels] ?? 255) < 128;
+
+  let x0 = W, x1 = -1, y0 = H, y1 = -1;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (!ink(x, y)) continue;
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+    }
+  }
+  if (x1 < 0) return 0;
+
+  const bw = x1 - x0 + 1;
+  const bh = y1 - y0 + 1;
+  const band = Math.max(3, Math.round(0.02 * Math.min(bw, bh)));
+  const anyInk = (xa: number, ya: number, xb: number, yb: number) => {
+    for (let y = ya; y <= yb; y++) for (let x = xa; x <= xb; x++) if (ink(x, y)) return true;
+    return false;
+  };
+  const covered = (n: number, hit: (i: number) => boolean) => {
+    let c = 0;
+    for (let i = 0; i < n; i++) if (hit(i)) c++;
+    return c / n;
+  };
+  return Math.min(
+    covered(bw, (i) => anyInk(x0 + i, y0, x0 + i, y0 + band)),
+    covered(bw, (i) => anyInk(x0 + i, y1 - band, x0 + i, y1)),
+    covered(bh, (i) => anyInk(x0, y0 + i, x0 + band, y0 + i)),
+    covered(bh, (i) => anyInk(x1 - band, y0 + i, x1, y0 + i))
+  );
+}
