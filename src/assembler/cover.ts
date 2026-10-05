@@ -6,6 +6,8 @@ import { readFileSync } from "fs";
 import sharp from "sharp";
 import { PDFDocument, StandardFonts, degrees, rgb, type RGB } from "pdf-lib";
 import { BLEED_IN, SPINE_TEXT_MIN_PAGES, coverLayout, inToPt, inToPx, type PaperType, type TrimSize } from "../lib/kdp-specs.js";
+import { getConfig } from "../lib/config.js";
+import { cropFrame } from "../postprocess/line-art.js";
 import { fitText, htmlToText, sanitize, wrapText } from "./text.js";
 
 export interface CoverInfo {
@@ -33,7 +35,8 @@ export async function renderCover(info: CoverInfo): Promise<Uint8Array> {
   const page = pdf.addPage([inToPt(L.size.width), inToPt(L.size.height)]);
 
   // Background = dominant color of the art, so back + spine match the front.
-  const art = readFileSync(info.artFile);
+  // Art must run to the trim: a frame drawn by the model would sit on the cut line.
+  const art = await cropFrame(readFileSync(info.artFile), getConfig().validator.max_frame_coverage);
   const { dominant } = await sharp(art).stats();
   const bg = rgb(dominant.r / 255, dominant.g / 255, dominant.b / 255);
   const lum = 0.2126 * dominant.r + 0.7152 * dominant.g + 0.0722 * dominant.b;

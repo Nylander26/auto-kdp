@@ -35,6 +35,7 @@ Full-color illustration for the front cover of a ${COVER_AUDIENCE[audience]} col
 Concept: ${coverConcept}.
 Style: same characters and look as the interior (${styleGuide}), but fully colored with a vibrant, appealing palette, as if a colorist finished one of the pages.
 Keep the top 25% of the image calm and uncluttered (a title will be placed there).
+Full bleed: the painting runs off all four edges — NO border, frame, rounded corners or white margin.
 Absolutely NO text, letters, titles, logos or watermarks.
 `.trim();
 }

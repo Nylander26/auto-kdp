@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import sharp from "sharp";
 import { frameCheck, inkCheck, normalizeValidation } from "../src/validator/criteria.js";
-import { frameCoverage } from "../src/postprocess/line-art.js";
+import { cropFrame, frameCoverage } from "../src/postprocess/line-art.js";
 import { getConfig } from "../src/lib/config.js";
 
 const v = getConfig().validator;
@@ -46,6 +46,14 @@ describe("frame pre-check", () => {
     const r = frameCheck(await frameCoverage(framed));
     expect(r?.verdict).toBe("rejected");
     expect(r?.reasons.blockers[0]).toMatch(/border/);
+  });
+
+  it("cropFrame removes a drawn border and leaves open artwork untouched", async () => {
+    const framed = await svgPage(`<rect x="20" y="20" width="360" height="460" rx="12" fill="none" stroke="#000" stroke-width="8"/>${tree}`);
+    const cropped = await cropFrame(framed, v.max_frame_coverage);
+    expect(await frameCoverage(cropped)).toBeLessThan(v.max_frame_coverage);
+    const open = await svgPage(tree);
+    expect(await cropFrame(open, v.max_frame_coverage)).toBe(open);
   });
 
   it("passes open artwork, even with a ground line spanning the width", async () => {
