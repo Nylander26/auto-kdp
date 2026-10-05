@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+*.tsbuildinfo
+
+# Pipeline output (books, pages, PDFs — regenerable)
+output/
+
+# DB (incl. WAL sidecar files)
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Claude
+.claude/settings.local.json

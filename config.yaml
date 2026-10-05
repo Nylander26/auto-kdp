@@ -1,0 +1,54 @@
+# auto-kdp — configuración del pipeline. Todos los campos tienen default (src/lib/config.ts).
+
+market:
+  country: US
+  currency: USD
+  language: en
+
+book:
+  author: "Your Pen Name"       # seudónimo que va en portada, portadilla y KDP
+  trim: "8.5x11"                # 8.5x11 | 8x10 | 8.25x8.25 | 6x9
+  paper: white                  # white | cream | premium-color
+  bleed: false                  # libros de colorear: arte dentro de márgenes, sin sangrado
+  audience: adults              # kids | adults (override con --audience)
+  pages: 30                     # ilustraciones por libro (override con --pages)
+  single_sided: true            # reverso en blanco tras cada ilustración
+  belongs_to_page: true         # página "This Book Belongs To" (solo kids)
+  margin_in: 0.5
+
+validator:
+  max_regenerations: 2          # tope duro de regeneraciones por página
+  approval_threshold: 7.0       # overall >= → approved
+  borderline_threshold: 5.5     # entre esto y approval → revisión manual
+  vision_model: "gemini-2.5-flash"
+  auto_approve_passing: true    # aprobadas por la IA saltan la revisión manual
+  auto_regenerate: true         # rechazadas se regeneran solas hasta el tope
+  min_ink_coverage: 0.02        # pre-check sin API: página casi vacía
+  max_ink_coverage: 0.35        # pre-check sin API: demasiado negro sólido
+
+gemini:
+  model_text: "gemini-2.5-flash"
+  model_image: "gemini-3.1-flash-image-preview"
+  image_size: "2K"              # 4K = más detalle a 300 DPI, más tokens por imagen
+
+pricing:                        # verificar contra la tabla actual de KDP antes de publicar
+  royalty_rate: 0.6
+  low_price_royalty_rate: 0.5
+  royalty_threshold_usd: 9.99
+  short_book_max_pages: 108
+  short_book_cost_usd: 2.30
+  fixed_cost_usd: 1.00
+  per_page_cost_usd: 0.012
+  target_royalty_usd: 2.50
+  min_price_usd: 7.99
+
+pipeline:
+  notify_telegram: true
+
+budget:
+  enabled: true
+  max_usd_per_run: 5.0          # ~30 páginas + regeneraciones + validación ≈ $2-3
+  cost_per_image_usd: 0.04
+  cost_per_text_usd: 0.002
+  cost_per_vision_usd: 0.01
+  cost_per_apify_call_usd: 0.05
