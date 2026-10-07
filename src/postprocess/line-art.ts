@@ -11,6 +11,7 @@ export interface PrintPageOptions {
   page: Size;        // interior page size in inches (incl. bleed when enabled)
   marginIn: number;  // white margin around the artwork
   threshold?: number; // 0-255, pixels darker than this become black
+  maxFrameCoverage?: number; // crop a drawn page frame first, so it is salvaged instead of regenerated
 }
 
 export async function toPrintPage(input: Buffer, opts: PrintPageOptions): Promise<Buffer> {
@@ -19,7 +20,8 @@ export async function toPrintPage(input: Buffer, opts: PrintPageOptions): Promis
   const boxW = pageW - 2 * inToPx(opts.marginIn);
   const boxH = pageH - 2 * inToPx(opts.marginIn);
 
-  const art = await sharp(input)
+  const source = opts.maxFrameCoverage === undefined ? input : await cropFrame(input, opts.maxFrameCoverage);
+  const art = await sharp(source)
     .flatten({ background: "#ffffff" })
     .grayscale()
     .trim({ background: "#ffffff", threshold: 30 })

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import sharp from "sharp";
 import { frameCheck, inkCheck, normalizeValidation } from "../src/validator/criteria.js";
-import { cropFrame, frameCoverage } from "../src/postprocess/line-art.js";
+import { cropFrame, frameCoverage, toPrintPage } from "../src/postprocess/line-art.js";
 import { getConfig } from "../src/lib/config.js";
 
 const v = getConfig().validator;
@@ -54,6 +54,15 @@ describe("frame pre-check", () => {
     expect(await frameCoverage(cropped)).toBeLessThan(v.max_frame_coverage);
     const open = await svgPage(tree);
     expect(await cropFrame(open, v.max_frame_coverage)).toBe(open);
+  });
+
+  it("toPrintPage salvages a framed page instead of leaving it for regeneration", async () => {
+    const framed = await svgPage(`<rect x="20" y="20" width="360" height="460" rx="12" fill="none" stroke="#000" stroke-width="8"/>${tree}`);
+    const page = { width: 8.5, height: 11 };
+    const kept = await toPrintPage(framed, { page, marginIn: 0.5 });
+    expect(frameCheck(await frameCoverage(kept))?.verdict).toBe("rejected");
+    const salvaged = await toPrintPage(framed, { page, marginIn: 0.5, maxFrameCoverage: v.max_frame_coverage });
+    expect(frameCheck(await frameCoverage(salvaged))).toBeNull();
   });
 
   it("passes open artwork, even with a ground line spanning the width", async () => {

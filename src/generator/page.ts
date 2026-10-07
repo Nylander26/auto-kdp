@@ -26,7 +26,11 @@ export async function generatePage(book: BookMeta, plan: PagePlan, regen?: Regen
 
   const img = await generateImage(prompt, { aspectRatio: "3:4" });
   const raw = Buffer.from(img.base64, "base64");
-  const print = await toPrintPage(raw, { page: interiorPageSize(book.trim, book.bleed), marginIn: cfg.book.margin_in });
+  const print = await toPrintPage(raw, {
+    page: interiorPageSize(book.trim, book.bleed),
+    marginIn: cfg.book.margin_in,
+    maxFrameCoverage: cfg.validator.max_frame_coverage,
+  });
 
   const dir = pageDir(book.id, id);
   mkdirSync(dir, { recursive: true });
