@@ -190,5 +190,19 @@ export async function generateImage(
   const result = await imageModel.generateContent(imageRequest(prompt, opts));
   const img = extractImage(result, cfg.gemini.model_image);
   if (img) return img;
-  throw new Error("No image returned (model returned text-only response)");
+  throw new Error(noImageReason(result));
+}
+
+/** Why a response carried no image — a safety block is permanent, so retrying the same prompt is wasted spend. */
+export function noImageReason(result: GenerateContentResult): string {
+  const blocked = result.response.promptFeedback?.blockReason;
+  if (blocked) return `No image returned: prompt blocked (${blocked}) — change the subject, retrying will not help`;
+  const candidate = result.response.candidates?.[0];
+  const finish = candidate?.finishReason;
+  const text = (candidate?.content?.parts ?? []).map((p) => p.text ?? "").join(" ").trim().slice(0, 200);
+  if (finish && finish !== "STOP") {
+    const detail = candidate?.finishMessage ? `: ${candidate.finishMessage}` : "";
+    return `No image returned: ${finish}${detail} — change the subject, retrying will not help`;
+  }
+  return `No image returned (model returned text-only response)${text ? `: ${text}` : ""}`;
 }
